@@ -1,0 +1,17 @@
+[Unit]
+Description=fodder FastAPI (tower memory API)
+After=network.target
+
+[Service]
+Type=simple
+# Create a dedicated user and chown /opt/fodder and /var/lib/fodder before use.
+User=fodder
+Group=fodder
+WorkingDirectory=/opt/fodder/server
+Environment="FODDER_DB=/var/lib/fodder/tower.db"
+ExecStart=/opt/fodder/server/.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

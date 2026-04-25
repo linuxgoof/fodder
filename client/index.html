@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fodder</title>
+    <style>
+      html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        min-height: 100dvh;
+        background: #0a0a0a;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-width: 100%;
+        min-height: 100%;
+        min-height: 100dvh;
+        background: #0a0a0a;
+        overflow: hidden;
+        font-family: Georgia, 'Times New Roman', serif;
+        color: #b8b4ac;
+      }
+      #app {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 100dvh;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        touch-action: none;
+      }
+      #fodder-ui {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+      }
+      #fodder-ui.fodder-ui--gone {
+        display: none;
+        pointer-events: none;
+      }
+      .fodder-splash {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a1a1e 0%, #0a0a0a 65%);
+        transition: opacity 0.45s ease;
+      }
+      .fodder-splash--hidden {
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        visibility: hidden;
+      }
+      .fodder-splash__inner {
+        text-align: center;
+        max-width: 32rem;
+        padding: 2rem 1.5rem 4rem;
+      }
+      .fodder-splash__title {
+        font-size: clamp(2.4rem, 6vw, 3.2rem);
+        font-weight: 400;
+        letter-spacing: 0.35em;
+        text-transform: lowercase;
+        color: #c8c2b6;
+        margin: 0 0 0.5rem;
+      }
+      .fodder-splash__sub {
+        font-size: 0.95rem;
+        font-style: italic;
+        color: #6a665c;
+        margin: 0 0 2.8rem;
+        letter-spacing: 0.04em;
+      }
+      .fodder-splash__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        justify-content: center;
+        align-items: center;
+      }
+      .fodder-btn {
+        font-family: inherit;
+        font-size: 0.95rem;
+        letter-spacing: 0.12em;
+        text-transform: lowercase;
+        padding: 0.75rem 1.6rem;
+        border-radius: 2px;
+        cursor: pointer;
+        border: 1px solid #3a3832;
+        background: transparent;
+        color: #a9a49a;
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+      }
+      .fodder-btn:hover {
+        color: #d4cfc4;
+        border-color: #5a5648;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .fodder-btn:focus-visible {
+        outline: 1px solid #6a6558;
+        outline-offset: 3px;
+      }
+      .fodder-btn--primary {
+        background: #2a2824;
+        border-color: #4a463c;
+        color: #dcd6c8;
+        padding-left: 2.2rem;
+        padding-right: 2.2rem;
+      }
+      .fodder-btn--primary:hover {
+        background: #3a3630;
+        border-color: #5c5648;
+        color: #f0eadd;
+      }
+      .fodder-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(5, 5, 6, 0.82);
+        padding: 1.5rem;
+        backdrop-filter: blur(4px);
+      }
+      .fodder-overlay--hidden {
+        display: none;
+      }
+      .fodder-overlay__card {
+        max-width: 34rem;
+        max-height: min(88vh, 44rem);
+        overflow: auto;
+        background: #121114;
+        border: 1px solid #2a2826;
+        box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
+        padding: 1.6rem 1.75rem 1.4rem;
+        text-align: left;
+      }
+      .fodder-overlay__h2 {
+        font-size: 1.15rem;
+        font-weight: 400;
+        font-style: italic;
+        color: #8a8478;
+        margin: 0 0 1.2rem;
+        letter-spacing: 0.04em;
+      }
+      .fodder-overlay__row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 1.4rem;
+        padding-top: 1rem;
+        border-top: 1px solid #201e1c;
+      }
+      .fodder-tutorial__sec {
+        margin-bottom: 1.35rem;
+      }
+      .fodder-tutorial__sec:last-of-type {
+        margin-bottom: 0.5rem;
+      }
+      .fodder-tutorial__h {
+        font-size: 0.78rem;
+        text-transform: lowercase;
+        letter-spacing: 0.2em;
+        color: #6a665c;
+        margin: 0 0 0.45rem;
+        font-weight: 400;
+      }
+      .fodder-tutorial__p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #9a968c;
+      }
+      .fodder-tutorial__p p {
+        margin: 0 0 0.65em;
+      }
+      .fodder-tutorial__p p:last-child {
+        margin-bottom: 0;
+      }
+      .fodder-game-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        min-width: 100%;
+        min-height: 100%;
+        min-height: 100dvh;
+        box-sizing: border-box;
+      }
+      .fodder-hud {
+        position: fixed;
+        z-index: 15;
+        top: 0.65rem;
+        right: 0.65rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        color: #7a7568;
+        pointer-events: auto;
+        text-shadow: 0 0 4px #0a0a0a;
+        max-width: 96vw;
+      }
+      .fodder-hud.fodder-hud--hidden {
+        display: none !important;
+      }
+      .fodder-hud__row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 0.75rem;
+        justify-content: flex-end;
+        align-items: center;
+      }
+      .fodder-hud__height--hidden { display: none; }
+      .fodder-hud__ridge {
+        display: block;
+        font-size: 0.72rem;
+        font-style: italic;
+        letter-spacing: 0.06em;
+        color: #5a5650;
+        max-width: 14rem;
+        text-align: right;
+        line-height: 1.25;
+      }
+      .fodder-hud__tog { cursor: pointer; user-select: none; color: #6a6558; }
+      .fodder-hud__tog input { margin-right: 0.25em; }
+      .fodder-hud__btn {
+        font-family: inherit;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: lowercase;
+        padding: 0.35rem 0.6rem;
+        background: #141416;
+        border: 1px solid #2c2a28;
+        color: #8a8578;
+        cursor: pointer;
+        border-radius: 1px;
+      }
+      .fodder-hud__btn:hover { color: #c0baaa; border-color: #3c3830; }
+      .fodder-hud__btn--danger { border-color: #4a2c28; color: #8a5a4a; }
+      .fodder-pause {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(4, 4, 5, 0.7);
+        backdrop-filter: blur(2px);
+        pointer-events: auto;
+      }
+      /* Must beat .fodder-pause { display: flex } — same element has both classes when closed */
+      .fodder-pause.fodder-pause--hidden {
+        display: none !important;
+        pointer-events: none;
+      }
+      .fodder-pause__card {
+        text-align: center;
+        background: #101012;
+        border: 1px solid #2a2624;
+        padding: 1.4rem 1.6rem;
+        max-width: 20rem;
+      }
+      .fodder-pause__p { margin: 0 0 1.1rem; font-style: italic; color: #6a6558; }
+      .fodder-pause__actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <div class="fodder-game-shell" id="fodder-game-shell">
+    <div id="fodder-ui" aria-label="fodder menu">
+    </div>
+    <div id="app"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
