@@ -1,15 +1,17 @@
 /**
- * Very low, wind-like noise + optional “stone” thump. Kept under design’s
- * “silence is a feature” — off until start, and muted on pause.
+ * Looping 8-bit chiptune background, plus event sounds (free-fall whoosh, ledge
+ * bonk). The tune is the heartbeat of the game per the updated DESIGN.md;
+ * silence is now reserved for specific narrative beats, not the default.
  */
+const tuneUrl = new URL('./8bit_tune.wav', import.meta.url).href;
 let ctx = null;
 let master = null;
-let src = null;
-let hum = null;
-/** Free-fall air rush (looped), faded in/out. */
+let tuneBuf = null;
 let whooshSrc = null;
 let whooshOut = null;
 let whooshTimeout = null;
+const DEFAULT_VOLUME = 0.35;
+const MAX_VOLUME = 0.5;
 function ensureContext() {
     if (typeof AudioContext === 'undefined')
         return null;
@@ -20,6 +22,14 @@ function ensureContext() {
     }
     return ctx;
 }
+async function loadTune(a) {
+    if (tuneBuf)
+        return tuneBuf;
+    const res = await fetch(tuneUrl);
+    const arr = await res.arrayBuffer();
+    tuneBuf = await a.decodeAudioData(arr);
+    return tuneBuf;
+}
 export function startAmbienceOnUserIntent() {
     const a = ensureContext();
     if (!a || master)
@@ -27,44 +37,27 @@ export function startAmbienceOnUserIntent() {
     master = a.createGain();
     master.gain.value = 0.0;
     master.connect(a.destination);
-    // Shaped noise buffer for wind
-    const dur = 4;
-    const buf = a.createBuffer(1, a.sampleRate * dur, a.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i += 1) {
-        d[i] = (Math.random() * 2 - 1) * 0.35;
-    }
-    src = a.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
-    const hp = a.createBiquadFilter();
-    hp.type = 'lowpass';
-    hp.frequency.value = 400;
-    src.connect(hp);
-    hp.connect(master);
-    try {
-        src.start();
-    }
-    catch {
-        /* */
-    }
-    // Subtle low hum (distant)
-    hum = a.createOscillator();
-    hum.frequency.value = 52;
-    const hg = a.createGain();
-    hg.gain.value = 0.008;
-    hum.connect(hg);
-    hg.connect(master);
-    try {
-        hum.start();
-    }
-    catch {
-        /* */
-    }
-    // Fade in
-    const now = a.currentTime;
-    master.gain.setValueAtTime(0, now);
-    master.gain.linearRampToValueAtTime(0.12, now + 2.5);
+    void loadTune(a)
+        .then((buf) => {
+        if (!a || !master)
+            return;
+        const s = a.createBufferSource();
+        s.buffer = buf;
+        s.loop = true;
+        s.connect(master);
+        try {
+            s.start();
+        }
+        catch {
+            /* */
+        }
+        const now = a.currentTime;
+        master.gain.setValueAtTime(0, now);
+        master.gain.linearRampToValueAtTime(DEFAULT_VOLUME, now + 1.2);
+    })
+        .catch((err) => {
+        console.warn('fodder: failed to load 8bit_tune.wav', err);
+    });
 }
 export function setAmbienceVolume(open) {
     if (!master)
@@ -73,7 +66,7 @@ export function setAmbienceVolume(open) {
     if (!c)
         return;
     const t = c.currentTime;
-    const v = Math.max(0, Math.min(0.14, open));
+    const v = Math.max(0, Math.min(MAX_VOLUME, open));
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value, t);
     master.gain.linearRampToValueAtTime(v, t + 0.2);
@@ -179,7 +172,6 @@ export function playPlatformBonk(velocity = 2.5) {
     out.gain.setValueAtTime(0, t0);
     out.gain.linearRampToValueAtTime(peak, t0 + 0.012);
     out.gain.linearRampToValueAtTime(0, t0 + 0.18);
-    // Thump
     const sub = a.createOscillator();
     sub.type = 'sine';
     sub.frequency.setValueAtTime(52 + imp * 30, t0);
@@ -191,7 +183,6 @@ export function playPlatformBonk(velocity = 2.5) {
     gSub.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
     sub.start(t0);
     sub.stop(t0 + 0.13);
-    // Bonk / stick click
     const cl = a.createOscillator();
     cl.type = 'triangle';
     cl.frequency.setValueAtTime(180 + imp * 120, t0);
@@ -203,7 +194,6 @@ export function playPlatformBonk(velocity = 2.5) {
     gCl.gain.linearRampToValueAtTime(0, t0 + 0.055);
     cl.start(t0);
     cl.stop(t0 + 0.06);
-    // Stone
     const nSamp = Math.floor(a.sampleRate * 0.12);
     const buf = a.createBuffer(1, nSamp, a.sampleRate);
     const ch = buf.getChannelData(0);

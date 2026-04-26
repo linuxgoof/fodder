@@ -6,17 +6,25 @@ A Foddian troll game that is melancholy, beautiful, endless, and remembers you.
 The rage is delivered through loss, not mockery. The tower doesn't laugh at the
 climber. The tower is sad for them. And that's worse.
 
+The world is melancholy; the soundtrack is not. A jaunty 8-bit theme loops
+underneath the climb. The contrast — sad world, cheerful music — is a
+deliberate authorial choice, not an accident.
+
 ## Fixed design rules
 
 These are not up for revision without deliberate discussion.
 
-1. **No humor in the game's voice.** The player can laugh; the game cannot.
+1. **The game's text voice stays melancholy.** The narrator never winks, never
+   jokes, never breaks. The soundtrack is allowed to be playful — the contrast
+   with the text is intentional.
 2. **No fourth-wall breaks.** All trolling stays inside the fiction.
 3. **No voiced narrator.** Text only, ambiguous presence, sparing.
 4. **No achievements, no progress bars, no percent complete.** The climb is not
    measurable.
 5. **No true ending.** The tower goes forever. Recursions repeat with variation.
-6. **Silence is a feature.** Music and narration are rare by default.
+6. **Music is the heartbeat.** A looping 8-bit theme runs throughout. Ambient
+   silence is reserved for specific narrative beats, not the default.
+   Narration remains rare.
 7. **The player is alone, but not the first.** Evidence of others is everywhere.
 8. **Every troll has a tell in retrospect.** Unfair once; fair forever after.
 9. **Cruelty budget is small.** Most failures are honest difficulty. The troll
@@ -78,7 +86,10 @@ The current build target. Nothing more.
   also refreshes marks periodically so in-session “ghosts” from others can
   appear without reloading.
 
-Explicitly out of scope for v0: recursion, multi-wall, polish, sound, full
+v0 sound scope: looping 8-bit theme as the background bed; existing event
+sounds (free-fall whoosh, ledge bonk) layer on top.
+
+Explicitly out of scope for v0: recursion, multi-wall, polish, full
 narrator system, full troll taxonomy, memory beyond fall coordinates, touch
 controls.
 
@@ -88,8 +99,9 @@ Planned as later work, not part of the v0 prototype. Order is flexible.
 
 - **Recursion:** summit reveals a sub-tower; scale and nature of space shift over
   time (per *Structural frame* above).
-- **Sound and music:** rare, intentional; still consistent with *Silence is a
-  feature*.
+- **Sound and music:** background 8-bit theme is in place as of v0 (see
+  *Music is the heartbeat*). Later work: per-zone variations, rare narrative
+  silence drops, and event-sound polish.
 - **Deeper memory:** trust erosion, path closure, haunted rest points, ghost
   progress — beyond fall coordinates.
 - **Full troll taxonomy:** more holds and tells, while keeping the cruelty

@@ -28,7 +28,7 @@ async function boot() {
     const game = new Game(app);
     if (localStorage.getItem('fodder_sound') !== '0') {
       startAmbienceOnUserIntent();
-      setAmbienceVolume(0.12);
+      setAmbienceVolume(0.35);
     } else {
       setAmbienceVolume(0);
     }
